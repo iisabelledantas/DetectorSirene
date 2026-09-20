@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 640" role="img"
+     aria-label="Task de captura de áudio (prioridade 3) envia AudioWindow pela audioQueue para a task de extração de features (prioridade 2), que envia FeatureVector pela featureQueue para a task de detecção de anomalia (prioridade 1); no Core 0, a task de modo silencioso (prioridade 1) roda em paralelo. As tasks de detecção e de modo silencioso disputam o peripheralMutex antes de controlar o LED e o buzzer.">
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a2230" />
+    </marker>
+    <marker id="arrow-queue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb" />
+    </marker>
+    <marker id="arrow-mutex" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <rect width="980" height="640" fill="#ffffff"/>
+
+  <!-- Lane: Core 1 -->
+  <rect x="30" y="26" width="470" height="420" rx="12" fill="none" stroke="#b45309" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.55"/>
+  <text x="50" y="14" font-size="12.5" font-weight="600" fill="#b45309" font-family="monospace">CORE 1 — pipeline de áudio (prioridade decrescente)</text>
+
+  <!-- Lane: Core 0 -->
+  <rect x="560" y="26" width="390" height="420" rx="12" fill="none" stroke="#0f766e" stroke-width="1.5" stroke-dasharray="5 4" opacity="0.55"/>
+  <text x="580" y="14" font-size="12.5" font-weight="600" fill="#0f766e" font-family="monospace">CORE 0 — interface</text>
+
+  <!-- Task 1: Audio Capture -->
+  <rect x="60" y="50" width="410" height="86" rx="10" fill="#fef3e2" stroke="#b45309" stroke-width="1.5"/>
+  <text x="80" y="76" font-size="15" font-weight="600" fill="#1a2230" font-family="sans-serif">Task 1 — AudioCapture</text>
+  <text x="80" y="96" font-size="12" fill="#5c6b7a" font-family="monospace">i2sInit() · lê HOP_SIZE amostras · monta janela (overlap)</text>
+  <text x="80" y="114" font-size="12" fill="#b45309" font-family="monospace">prioridade 3 (alta) · stack 8192B</text>
+
+  <!-- Queue: audioQueue -->
+  <line x1="265" y1="136" x2="265" y2="180" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-queue)"/>
+  <text x="282" y="152" font-size="12" font-weight="600" fill="#2563eb" font-family="monospace">audioQueue</text>
+  <text x="282" y="167" font-size="11.5" fill="#5c6b7a" font-family="monospace">AudioWindow · fila=4</text>
+
+  <!-- Task 2: Feature Extraction -->
+  <rect x="60" y="180" width="410" height="86" rx="10" fill="#eef1f4" stroke="#b45309" stroke-width="1.5" opacity="0.9"/>
+  <text x="80" y="206" font-size="15" font-weight="600" fill="#1a2230" font-family="sans-serif">Task 2 — FeatureExtraction</text>
+  <text x="80" y="226" font-size="12" fill="#5c6b7a" font-family="monospace">RMS · FFT/Hann · centroide · MFCC (mel + DCT)</text>
+  <text x="80" y="244" font-size="12" fill="#b45309" font-family="monospace">prioridade 2 (média) · stack 8192B</text>
+
+  <!-- Queue: featureQueue -->
+  <line x1="265" y1="266" x2="265" y2="310" stroke="#2563eb" stroke-width="2" marker-end="url(#arrow-queue)"/>
+  <text x="282" y="282" font-size="12" font-weight="600" fill="#2563eb" font-family="monospace">featureQueue</text>
+  <text x="282" y="297" font-size="11.5" fill="#5c6b7a" font-family="monospace">FeatureVector · fila=4</text>
+
+  <!-- Task 3: Anomaly Detection -->
+  <rect x="60" y="310" width="410" height="86" rx="10" fill="#eef1f4" stroke="#b45309" stroke-width="1.5" opacity="0.9"/>
+  <text x="80" y="336" font-size="15" font-weight="600" fill="#1a2230" font-family="sans-serif">Task 3 — AnomalyDetection</text>
+  <text x="80" y="356" font-size="12" fill="#5c6b7a" font-family="monospace">TFLite Micro Invoke() · debounce (consecutivePositives)</text>
+  <text x="80" y="374" font-size="12" fill="#b45309" font-family="monospace">prioridade 1 (baixa) · stack 8192B</text>
+
+  <!-- Task 4: Silent Mode (Core 0) -->
+  <rect x="580" y="180" width="350" height="86" rx="10" fill="#e6f5f3" stroke="#0f766e" stroke-width="1.5"/>
+  <text x="600" y="206" font-size="15" font-weight="600" fill="#1a2230" font-family="sans-serif">Task 4 — SilentMode</text>
+  <text x="600" y="226" font-size="12" fill="#5c6b7a" font-family="monospace">lê botão · debounce 50ms · alterna silentModeEnabled</text>
+  <text x="600" y="244" font-size="12" fill="#0f766e" font-family="monospace">prioridade 1 (baixa) · stack 2048B</text>
+
+  <!-- Elbow: Task3 -> Mutex -->
+  <polyline points="265,396 265,470 360,470" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-mutex)"/>
+  <!-- Elbow: Task4 -> Mutex -->
+  <polyline points="755,266 755,470 610,470" fill="none" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-mutex)"/>
+
+  <!-- Mutex node -->
+  <rect x="360" y="440" width="260" height="60" rx="10" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="490" y="463" text-anchor="middle" font-size="13.5" font-weight="600" fill="#7c3aed" font-family="monospace">peripheralMutex</text>
+  <text x="490" y="480" text-anchor="middle" font-size="11" fill="#5c6b7a" font-family="monospace">xSemaphoreTake / Give</text>
+
+  <!-- Mutex -> peripherals -->
+  <line x1="490" y1="500" x2="490" y2="540" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-mutex)"/>
+
+  <!-- Peripherals -->
+  <rect x="345" y="540" width="290" height="60" rx="10" fill="#eef1f4" stroke="#d7dce2" stroke-width="1.5"/>
+  <text x="490" y="565" text-anchor="middle" font-size="13" font-weight="600" fill="#1a2230" font-family="sans-serif">LED_PIN · BUZZER_PIN</text>
+  <text x="490" y="583" text-anchor="middle" font-size="11" fill="#5c6b7a" font-family="monospace">estado lido/escrito só sob o mutex</text>
+
+  <text x="60" y="620" font-size="11.5" fill="#5c6b7a" font-family="sans-serif">Filas cheias descartam a entrada mais antiga (não bloqueiam a captura) · debounce: 3 janelas positivas seguidas confirmam o alerta</text>
+</svg>

@@ -1,0 +1,8 @@
+{
+  "label": "Relatório Técnico — Detector de Sirene",
+  "position": 1,
+  "link": {
+    "type": "generated-index",
+    "description": "Treinamento do modelo, arquitetura RTOS e validação end-to-end do Detector de Sirene (ESP32 + FreeRTOS + TensorFlow Lite Micro)."
+  }
+}
