@@ -141,10 +141,3 @@ O script atual agrega apenas a latência fim-a-fim por clipe; o firmware também
 estágio (`lat_captura_features`, `lat_features_deteccao`, `lat_inferencia`) diretamente no log
 serial a cada janela e um resumo min/média/máx a cada 50 janelas — útil para uma inspeção manual
 mais fina, caso o relatório precise detalhar quanto tempo cabe a cada etapa individualmente.
-
-## Reprodutibilidade
-
-O script, o `README.md` com instruções de uso e os CSVs de saída
-(`resultados_detalhados.csv`, `resumo_latencia.csv`) desta execução ficam junto ao código-fonte do
-projeto, permitindo repetir o teste a qualquer momento com o mesmo conjunto de áudios ou com um
-conjunto expandido.

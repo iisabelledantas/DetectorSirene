@@ -17,12 +17,8 @@ sutil no cálculo dos coeficientes MFCC que impedia a detecção correta em áud
 
 ## Pipeline de dados
 
-1. **Download do dataset.** A tentativa inicial via `soundata` (que baixa do Zenodo) falhou
-   repetidamente com erro `504 Gateway Timeout`. O pipeline foi adaptado para baixar o dataset via
-   `kagglehub` (`chrisfilo/urbansound8k`), com uma classe `Clip` própria replicando a interface que
-   o `soundata` oferecia, lendo `UrbanSound8K.csv` diretamente para mapear cada arquivo ao seu fold
-   e classe.
-2. **Rotulagem binária.** A classe `siren` (classID 8) do UrbanSound8K vira o rótulo positivo；
+1. **Download do dataset.**  Foi realizado via `soundata` que baixa do Zenodo.
+2. **Rotulagem binária.** A classe `siren` (classID 8) do UrbanSound8K vira o rótulo positivo,
    todas as outras 9 classes (buzina, cachorro latindo, perfuratriz, música de rua etc.) formam o
    conjunto negativo.
 3. **Split por fold.** O UrbanSound8K é organizado em 10 folds pré-definidos, desenhados

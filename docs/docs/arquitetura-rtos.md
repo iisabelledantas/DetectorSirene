@@ -1,6 +1,6 @@
 ---
 id: arquitetura-rtos
-title: Arquitetura RTOS e Análise de Latência
+title: Arquitetura RTOS 
 sidebar_label: Arquitetura RTOS
 sidebar_position: 2
 description: As 4 tasks FreeRTOS do Detector de Sirene, suas filas e mutex, a instrumentação de latência e o case study do stack overflow silencioso.
