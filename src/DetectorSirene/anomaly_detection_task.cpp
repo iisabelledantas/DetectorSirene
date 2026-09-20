@@ -1,12 +1,11 @@
 #include "anomaly_detection_task.h"
-#include "modelo_sirene.h"         // gerado no Colab: modelo_sirene_tflite[], modelo_sirene_tflite_len
-#include "normalizacao_params.h"   // gerado no Colab: feature_mean[], feature_std[], INPUT_SCALE, etc.
-
-// ---- Chirale_TensorFlowLite (API de baixo nivel, mesma estrutura do TFLite Micro oficial) ----
+#include "modelo_sirene.h"         
+#include "normalizacao_params.h"   
 #include <Chirale_TensorFlowLite.h>
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/schema/schema_generated.h"
+
 #if LATENCY_INSTRUMENTATION_ENABLED
 #include <esp_timer.h>
 #endif
@@ -85,7 +84,7 @@ static float runInference() {
 }
 
 #if LATENCY_INSTRUMENTATION_ENABLED
-// Estatísticas acumuladas de latência (em microssegundos), resetadas a cada LATENCY_STATS_WINDOW amostras.
+
 namespace {
     int64_t statCount = 0;
     int64_t sumEndToEndUs = 0;
@@ -108,7 +107,6 @@ static void recordLatencySample(int64_t captureToFeaturesUs, int64_t featuresToD
     if (inferenceUs < minInferenceUs) minInferenceUs = inferenceUs;
     if (inferenceUs > maxInferenceUs) maxInferenceUs = inferenceUs;
 
-    // Log por janela: latência de cada estágio, em milissegundos, com 3 casas decimais.
     Serial.printf(
         "lat_captura_features=%.3fms lat_features_deteccao=%.3fms lat_inferencia=%.3fms lat_fim_a_fim=%.3fms\n",
         captureToFeaturesUs / 1000.0f, featuresToDetectUs / 1000.0f,

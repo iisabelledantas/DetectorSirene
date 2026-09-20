@@ -5,7 +5,6 @@
 #include "config.h"
 #include "shared_types.h"
 
-// Filas compartilhadas (declaradas em main)
 extern QueueHandle_t audioQueue;
 extern QueueHandle_t featureQueue;
 

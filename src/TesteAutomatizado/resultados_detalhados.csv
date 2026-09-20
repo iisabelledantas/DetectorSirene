@@ -1,0 +1,11 @@
+arquivo,rotulo_real,detectou,classificacao,correto,duracao_s,prob_max,tempo_ate_confirmar_s,latencia_media_fim_a_fim_ms,n_amostras_latencia
+11325622-air-raid-siren-sound-effect-241383.wav,sirene,True,TP,True,15.047,0.984,1.475,4.932,535
+11325622-police-siren-sound-effect-240674.wav,sirene,True,TP,True,18.495,0.996,0.466,4.932,642
+audiopapkin-medical-ambulance-siren-290716.wav,sirene,False,FN,False,15.229,0.965,,4.931,540
+dragon-studio-police-siren-397963.wav,sirene,True,TP,True,5.407,0.996,0.999,4.93,233
+virtualzero-police-siren-cinematic-hd-371856.wav,sirene,True,TP,True,8.046,0.996,0.463,4.932,316
+freesound_community-car-street-noise-68104.wav,nao_sirene,True,FP,False,51.816,0.973,5.817,4.932,1683
+kamhunt-sunflower-street-drumloop-85bpm-163900.wav,nao_sirene,False,TN,True,11.337,0.883,,4.931,419
+km007-street-ambience-9267.wav,nao_sirene,True,FP,False,36.467,0.969,8.887,4.931,1204
+soundhunterin-street-music-venedig-cafe-straenmusik-street-music-restaurant-atmo-141311.wav,nao_sirene,False,TN,True,45.528,0.984,,4.931,1487
+yuk1to-street-ambience-traffic-410714.wav,nao_sirene,False,TN,True,110.04,0.953,,4.931,3503

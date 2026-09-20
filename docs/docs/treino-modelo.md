@@ -1,5 +1,6 @@
 ---
 id: treino-modelo
+slug: /
 title: Treinamento do Modelo e Análise de Resultados
 sidebar_label: Treino do Modelo
 sidebar_position: 1

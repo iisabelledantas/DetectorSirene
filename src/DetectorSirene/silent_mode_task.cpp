@@ -1,7 +1,5 @@
 #include "silent_mode_task.h"
 
-// Task de baixíssima prioridade: só existe para demonstrar mais um ponto de
-// concorrência real (leitura de GPIO + escrita em uma flag compartilhada com a Task 3).
 void silentModeTaskFn(void *pvParameters) {
     pinMode(SILENT_BUTTON_PIN, INPUT_PULLUP);
 
@@ -17,7 +15,6 @@ void silentModeTaskFn(void *pvParameters) {
             lastChangeTick = now;
             lastRawState = rawState;
 
-            // Botão ativo em LOW (INPUT_PULLUP): alterna no toque (borda de descida)
             if (rawState == LOW) {
                 xSemaphoreTake(peripheralMutex, portMAX_DELAY);
                 silentModeEnabled = !silentModeEnabled;
@@ -25,6 +22,6 @@ void silentModeTaskFn(void *pvParameters) {
             }
         }
 
-        vTaskDelay(pdMS_TO_TICKS(20));   // polling leve - task de baixa prioridade
+        vTaskDelay(pdMS_TO_TICKS(20));   
     }
 }

@@ -1,12 +1,12 @@
 #include "feature_extraction_task.h"
-#include <arduinoFFT.h>       // Biblioteca "arduinoFFT" (instalar via Library Manager)
-#include "mel_filterbank.h"   // Gerado pelo script Python (Etapa "Exportar mel filterbank")
-#include "dct_matrix.h"       // Gerado pelo script Python (Etapa "Exportar mel filterbank")
+#include <arduinoFFT.h>       
+#include "mel_filterbank.h"   
+#include "dct_matrix.h"       
 #if LATENCY_INSTRUMENTATION_ENABLED
 #include <esp_timer.h>
 #endif
 
-#define N_FFT_BINS (N_FFT / 2 + 1)   // bins de magnitude úteis (espectro real, unilateral)
+#define N_FFT_BINS (N_FFT / 2 + 1)   
 
 static float fftReal[N_FFT];
 static float fftImag[N_FFT];
@@ -28,8 +28,6 @@ static float computeRMS(const float *samples, int n) {
     return sqrtf(sumSquares / n);
 }
 
-// Calcula a FFT da janela (com Hann window aplicada, igual ao comportamento padrão do librosa.stft)
-// e devolve o espectro de magnitude nos primeiros N_FFT_BINS bins.
 static void computeMagnitudeSpectrum(const float *samples, float *magnitudeOut) {
     if (!hannInitialized) initHannWindow();
 
@@ -43,7 +41,7 @@ static void computeMagnitudeSpectrum(const float *samples, float *magnitudeOut) 
     FFT.complexToMagnitude();
 
     for (int i = 0; i < N_FFT_BINS; i++) {
-        magnitudeOut[i] = fftReal[i];   // após complexToMagnitude, a magnitude fica em fftReal
+        magnitudeOut[i] = fftReal[i]; 
     }
 }
 
@@ -59,23 +57,17 @@ static float computeSpectralCentroid(const float *magnitude) {
     return weightedSum / magnitudeSum;
 }
 
-// Aplica o banco de filtros mel (matriz MEL_FILTERBANK) sobre o espectro de magnitude,
-// tira o log, e então aplica a matriz DCT (DCT_MATRIX) para obter os coeficientes MFCC.
 static void computeMFCC(const float *magnitude, float *mfccOut) {
-    static float melEnergies[MEL_FILTERBANK_ROWS];   // MEL_FILTERBANK_ROWS == N_MELS
+    static float melEnergies[MEL_FILTERBANK_ROWS];  
 
     for (int m = 0; m < MEL_FILTERBANK_ROWS; m++) {
         float energy = 0.0f;
         for (int k = 0; k < N_FFT_BINS; k++) {
-            // CORRIGIDO: eleva ao quadrado (espectro de potência, não só magnitude) -
-            // é isso que librosa.feature.melspectrogram/mfcc usa internamente.
             energy += MEL_FILTERBANK[m][k] * (magnitude[k] * magnitude[k]);
         }
-        // CORRIGIDO: 10*log10(x), igual ao power_to_db do librosa (não log natural)
         melEnergies[m] = 10.0f * log10f(energy + 1e-6f);
     }
 
-    // DCT_MATRIX tem shape (N_MFCC, N_MELS)
     for (int c = 0; c < N_MFCC; c++) {
         float sum = 0.0f;
         for (int m = 0; m < DCT_MATRIX_COLS; m++) {
@@ -105,13 +97,9 @@ void featureExtractionTaskFn(void *pvParameters) {
                 fv.values[2 + i] = mfcc[i];
             }
 #if LATENCY_INSTRUMENTATION_ENABLED
-            // Propaga o t0 (instante da captura) e marca t1 (features prontas) para medição
-            // de latência por estágio e fim-a-fim nas tasks seguintes.
             fv.captureTimestampUs = window.captureTimestampUs;
             fv.featureTimestampUs = esp_timer_get_time();
 #endif
-
-            // Se a fila de features estiver cheia, descarta a mais antiga (mesmo critério da Task 1)
             if (xQueueSend(featureQueue, &fv, 0) != pdTRUE) {
                 FeatureVector discarded;
                 xQueueReceive(featureQueue, &discarded, 0);
